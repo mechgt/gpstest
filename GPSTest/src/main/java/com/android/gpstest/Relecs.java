@@ -39,5 +39,5 @@ interface Api {
     String BASE_URL = "http://172.22.22.111:5000/";
 
     @GET("sample")
-    Call<List<PowerSample>> getSample(@Query("gpsid") int id);
+    Call<PowerSample> getSample(@Query("gpsid") int id);
 }

@@ -51,7 +51,6 @@ import com.android.gpstest.util.SatelliteUtils;
 import com.android.gpstest.util.UIUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -78,9 +77,9 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
 
     private int svCount;
 
-    private String mSnrCn0Title;
-
     private long mFixTime;
+
+    private PowerSample mPowerSample;
 
     private boolean mNavigating;
 
@@ -152,21 +151,25 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
         }
     }
 
-    private void updatePower() {
-        Call<List<PowerSample>> call = Relecs.getInstance().getRelecsAPI().getSample(1);
+    private void readPower() {
+        //Call<List<PowerSample>> call = Relecs.getInstance().getRelecsAPI().getSample(1);
+        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(1);
 
-        call.enqueue(new Callback<List<PowerSample>>() {
+        call.enqueue(new Callback<PowerSample>() {
             @Override
-            public void onResponse(Call<List<PowerSample>> call, Response<List<PowerSample>> response) {
-                Object r = response.body();
-                // List<PowerSample> samples = response.body();
+            public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
+                mPowerSample = response.body();
+                Phase pA = mPowerSample.data.sample.A;
+                Phase pB = mPowerSample.data.sample.B;
+                Phase pC = mPowerSample.data.sample.C;
+                mVoltageView.setText(String.format("%.2f", pA.volts));
+                mCurrentView.setText(String.format("%.2f", pA.amps));
             }
 
             @Override
-            public void onFailure(Call<List<PowerSample>> call, Throwable t) {
+            public void onFailure(Call<PowerSample> call, Throwable t) {
                 Toast.makeText(getContext(), "An error has occured", Toast.LENGTH_LONG).show();
             }
-
         });
     }
 
@@ -231,7 +234,7 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
         mFixTime = location.getTime();
 
         updateFixTime();
-        updatePower();
+        readPower();
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
