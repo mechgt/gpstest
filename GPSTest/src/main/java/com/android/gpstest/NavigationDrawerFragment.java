@@ -88,6 +88,8 @@ public class NavigationDrawerFragment extends Fragment {
 
     protected static final int NAVDRAWER_ITEM_ACCURACY = 10;
 
+    protected static final int NAVDRAWER_ITEM_PHASER = 11;
+
     protected static final int NAVDRAWER_ITEM_INVALID = -1;
 
     protected static final int NAVDRAWER_ITEM_SEPARATOR = -2;
@@ -109,7 +111,8 @@ public class NavigationDrawerFragment extends Fragment {
             R.string.force_time_injection,
             R.string.delete_aiding_data,
             R.string.navdrawer_item_send_feedback,
-            R.string.gps_accuracy_title
+            R.string.gps_accuracy_title,
+            R.string.gps_phaser_title
     };
 
     // icons for navdrawer items (indices must correspond to above array)
@@ -124,7 +127,8 @@ public class NavigationDrawerFragment extends Fragment {
             R.drawable.ic_inject_time, // Inject time data
             R.drawable.ic_delete, // Clear assist data
             0, // Send feedback
-            R.drawable.ic_accuracy // Accuracy
+            R.drawable.ic_accuracy, // Accuracy
+            R.drawable.ic_sky, // Phaser
     };
 
     // Secondary navdrawer item icons that appear align to right of list item layout
@@ -139,7 +143,8 @@ public class NavigationDrawerFragment extends Fragment {
             0, // Inject time data
             0, // Clear assist data
             0,  // Send feedback
-            0  // Accuracy
+            0,  // Accuracy
+            0
     };
 
     // list of navdrawer items that were actually added to the navdrawer, in order
@@ -403,6 +408,7 @@ public class NavigationDrawerFragment extends Fragment {
         mNavDrawerItems.add(NAVDRAWER_ITEM_MAP);
         mNavDrawerItems.add(NAVDRAWER_ITEM_SKY);
         mNavDrawerItems.add(NAVDRAWER_ITEM_ACCURACY);
+        mNavDrawerItems.add(NAVDRAWER_ITEM_PHASER);
 
         mNavDrawerItems.add(NAVDRAWER_ITEM_SEPARATOR_SPECIAL);
 

@@ -23,6 +23,7 @@
     <string name="gps_map_title">Map</string>
     <string name="gps_sky_title">Sky</string>
     <string name="gps_accuracy_title">Accuracy</string>
+    <string name="gps_phaser_title">Phaser</string>
 
     <!-- Navigation Drawer -->
     <string name="navdrawer_separator_assist_data">Modify assist data</string>
@@ -93,6 +94,10 @@
     <string name="gps_num_sats_label"># Sats:</string>
     <string name="pdop_label">PDOP:</string>
     <string name="hvdop_label">H/V DOP:</string>
+
+    <string name="voltage_label">Voltage:</string>
+    <string name="current_label">Current:</string>
+    <string name="angle_label">Angle:</string>
 
     <string name="gps_prn_column_label">ID</string>
     <string name="gnss_flag_image_label">GNSS</string>

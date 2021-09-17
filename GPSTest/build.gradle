@@ -152,6 +152,13 @@ dependencies {
     // OSM Droid (fdroid flavor only)
     osmdroidImplementation 'org.osmdroid:osmdroid-android:6.1.4'
 
+    // Okhttp3 for the POST requests
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-jackson
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+
     //
     // Unit tests
     //

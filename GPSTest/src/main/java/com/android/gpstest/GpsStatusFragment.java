@@ -100,11 +100,11 @@ public class GpsStatusFragment extends Fragment implements GpsTestListener {
     @SuppressLint("SimpleDateFormat") // See #117
     SimpleDateFormat mTimeFormat = new SimpleDateFormat(
             DateFormat.is24HourFormat(Application.get().getApplicationContext())
-                    ? "HH:mm:ss" : "hh:mm:ss a");
+                    ? "HH:mm:ss.SSS" : "hh:mm:ss.SSS a");
 
     SimpleDateFormat mTimeAndDateFormat = new SimpleDateFormat(
             DateFormat.is24HourFormat(Application.get().getApplicationContext())
-                    ? "HH:mm:ss MMM d, yyyy z" : "hh:mm:ss a MMM d, yyyy z");
+                    ? "HH:mm:ss.SSS MMM d, yyyy z" : "hh:mm:ss.SSS a MMM d, yyyy z");
 
     private Resources mRes;
 
