@@ -129,9 +129,16 @@
     <string name="pref_key_language">preference_language</string>
     <string name="pref_key_force_full_gnss_measurements">preference_force_full_gnss_measurements</string>
 
+    <string name="pref_key_id">preference_id</string>
+    <string name="pref_key_host">preference_host</string>
+    <string name="pref_key_port">preference_port</string>
+
     <!-- Default preference values -->
     <string name="pref_gps_min_time_default_sec">1</string>
     <string name="pref_gps_min_distance_default_meters">0</string>
+    <string name="pref_gps_id_default">0</string>
+    <string name="pref_gps_host_default">172.22.22.111</string>
+    <string name="pref_gps_port_default">5000</string>
 
     <!-- The contants in map_type_entries and below match those in GoogleMap object:
     https://developers.google.com/maps/documentation/android/reference/com/google/android/gms/maps/GoogleMap -->

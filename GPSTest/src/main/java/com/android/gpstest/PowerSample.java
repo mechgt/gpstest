@@ -1,4 +1,3 @@
-
 package com.android.gpstest;
 
 import androidx.annotation.RequiresPermission;
@@ -40,6 +39,11 @@ class Phase {
     double volts;
     @JsonProperty("amps")
     double amps;
+
+    @JsonProperty("volts_ang")
+    double volts_ang;
+    @JsonProperty("amps_ang")
+    double amps_ang;
 
     Phase() {
     }

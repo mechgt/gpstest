@@ -23,7 +23,7 @@
     <string name="gps_map_title">Map</string>
     <string name="gps_sky_title">Sky</string>
     <string name="gps_accuracy_title">Accuracy</string>
-    <string name="gps_phaser_title">Phaser</string>
+    <string name="gps_phasor_title">Phasor</string>
 
     <!-- Navigation Drawer -->
     <string name="navdrawer_separator_assist_data">Modify assist data</string>
@@ -310,6 +310,24 @@
     </string>
     <string name="pref_gps_min_distance_dialog_title">Enter a min. distance, in meters</string>
     <string name="pref_gps_min_distance_invalid_entry">Min. Distance must be a number</string>
+
+    <string name="pref_gps_id_title">PMU Id</string>
+    <string name="pref_gps_id_summary">Unique Id for this PMU.
+    </string>
+    <string name="pref_gps_id_dialog_title">Enter the unique Id of this PMU. 1 or greater.</string>
+    <string name="pref_gps_id_invalid_entry">Id must be a number</string>
+
+    <string name="pref_gps_host_title">Relecs Server</string>
+    <string name="pref_gps_host_summary">IP or hostname of Relecs Simulator server
+    </string>
+    <string name="pref_gps_host_dialog_title">Enter IP or hostname of Relecs Simulator</string>
+    <string name="pref_gps_host_invalid_entry">Invalid Entry</string>
+
+    <string name="pref_gps_port_title">Relecs Port</string>
+    <string name="pref_gps_port_summary">Relecs API port number
+    </string>
+    <string name="pref_gps_port_dialog_title">Enter port of the Relecs API</string>
+    <string name="pref_gps_port_invalid_entry">Port must be a number</string>
 
     <string name="pref_display_category_title">Display</string>
     <string name="pref_keep_screen_on_title">Keep Screen On</string>

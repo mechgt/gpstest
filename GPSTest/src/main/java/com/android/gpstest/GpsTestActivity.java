@@ -28,7 +28,7 @@ import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_SEND_F
 import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_SETTINGS;
 import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_SKY;
 import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_STATUS;
-import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_PHASER;
+import static com.android.gpstest.NavigationDrawerFragment.NAVDRAWER_ITEM_PHASOR;
 import static com.android.gpstest.util.IOUtils.trimEnds;
 import static com.android.gpstest.util.IOUtils.writeGnssMeasurementToAndroidStudio;
 import static com.android.gpstest.util.IOUtils.writeNavMessageToAndroidStudio;
@@ -174,7 +174,7 @@ public class GpsTestActivity extends AppCompatActivity
 
     private GpsMapFragment mAccuracyFragment;
 
-    private GpsPhaserFragment mPhaserFragment;
+    private GpsPhasorFragment mPhasorFragment;
 
     // Holds sensor data
     private static float[] mRotationMatrix = new float[16];
@@ -690,9 +690,9 @@ public class GpsTestActivity extends AppCompatActivity
                     mCurrentNavDrawerPosition = item;
                 }
                 break;
-            case NAVDRAWER_ITEM_PHASER:
-                if (mCurrentNavDrawerPosition != NAVDRAWER_ITEM_PHASER) {
-                    showPhaserFragment();
+            case NAVDRAWER_ITEM_PHASOR:
+                if (mCurrentNavDrawerPosition != NAVDRAWER_ITEM_PHASOR) {
+                    showPhasorFragment();
                     mCurrentNavDrawerPosition = item;
                 }
                 break;
@@ -748,7 +748,7 @@ public class GpsTestActivity extends AppCompatActivity
         hideMapFragment();
         hideSkyFragment();
         hideAccuracyFragment();
-        hidePhaserFragment();
+        hidePhasorFragment();
         if (mBenchmarkController != null) {
             mBenchmarkController.hide();
         }
@@ -790,7 +790,7 @@ public class GpsTestActivity extends AppCompatActivity
         hideStatusFragment();
         hideSkyFragment();
         hideAccuracyFragment();
-        hidePhaserFragment();
+        hidePhasorFragment();
         if (mBenchmarkController != null) {
             mBenchmarkController.hide();
         }
@@ -834,7 +834,7 @@ public class GpsTestActivity extends AppCompatActivity
         hideStatusFragment();
         hideMapFragment();
         hideAccuracyFragment();
-        hidePhaserFragment();
+        hidePhasorFragment();
         if (mBenchmarkController != null) {
             mBenchmarkController.hide();
         }
@@ -876,7 +876,7 @@ public class GpsTestActivity extends AppCompatActivity
         hideStatusFragment();
         hideMapFragment();
         hideSkyFragment();
-        hidePhaserFragment();
+        hidePhasorFragment();
         /**
          * Show fragment (we use show instead of replace to keep the map state)
          */
@@ -913,7 +913,7 @@ public class GpsTestActivity extends AppCompatActivity
         }
     }
 
-    private void showPhaserFragment() {
+    private void showPhasorFragment() {
         FragmentManager fm = getSupportFragmentManager();
         /**
          * Hide everything that shouldn't be shown
@@ -929,29 +929,29 @@ public class GpsTestActivity extends AppCompatActivity
         /**
          * Show fragment (we use show instead of replace to keep the map state)
          */
-        if (mPhaserFragment == null) {
+        if (mPhasorFragment == null) {
             // First check to see if an instance of fragment already exists
-            mPhaserFragment = (GpsPhaserFragment) fm.findFragmentByTag(GpsPhaserFragment.TAG);
+            mPhasorFragment = (GpsPhasorFragment) fm.findFragmentByTag(GpsPhasorFragment.TAG);
 
-            if (mPhaserFragment == null) {
+            if (mPhasorFragment == null) {
                 // No existing fragment was found, so create a new one
-                Log.d(TAG, "Creating new GpsPhaserFragment");
-                mPhaserFragment = new GpsPhaserFragment();
+                Log.d(TAG, "Creating new GpsPhasorFragment");
+                mPhasorFragment = new GpsPhasorFragment();
                 fm.beginTransaction()
-                        .add(R.id.fragment_container, mPhaserFragment, GpsPhaserFragment.TAG)
+                        .add(R.id.fragment_container, mPhasorFragment, GpsPhasorFragment.TAG)
                         .commit();
             }
         }
 
-        getSupportFragmentManager().beginTransaction().show(mPhaserFragment).commit();
-        setTitle(getResources().getString(R.string.gps_phaser_title));
+        getSupportFragmentManager().beginTransaction().show(mPhasorFragment).commit();
+        setTitle(getResources().getString(R.string.gps_phasor_title));
     }
 
-    private void hidePhaserFragment() {
+    private void hidePhasorFragment() {
         FragmentManager fm = getSupportFragmentManager();
-        mPhaserFragment = (GpsPhaserFragment) fm.findFragmentByTag(GpsPhaserFragment.TAG);
-        if (mPhaserFragment != null && !mPhaserFragment.isHidden()) {
-            fm.beginTransaction().hide(mPhaserFragment).commit();
+        mPhasorFragment = (GpsPhasorFragment) fm.findFragmentByTag(GpsPhasorFragment.TAG);
+        if (mPhasorFragment != null && !mPhasorFragment.isHidden()) {
+            fm.beginTransaction().hide(mPhasorFragment).commit();
         }
     }
 

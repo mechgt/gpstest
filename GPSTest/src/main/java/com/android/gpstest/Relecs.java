@@ -1,5 +1,8 @@
 package com.android.gpstest;
 
+import android.annotation.SuppressLint;
+
+import com.android.gpstest.util.PreferenceUtils;
 import com.fasterxml.jackson.core.JsonFactory;
 
 import java.util.List;
@@ -12,12 +15,23 @@ import retrofit2.http.Query;
 
 public class Relecs {
 
+    String BASE_URL = "http://172.22.22.111:5000/";
+
     private static Relecs instance = null;
     private Api relecsAPI;
 
+    @SuppressLint("DefaultLocale")
     private Relecs() {
+        String host = PreferenceUtils.getString(Application.get().getString(R.string.pref_key_host));
+        if (host == null) {
+            host = Application.get().getString(R.string.pref_gps_host_default);
+        }
+
+        int port = PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_port), 5000);
+        BASE_URL = String.format("http://%s:%d", host, port);
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Api.BASE_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
         relecsAPI = retrofit.create(Api.class);
@@ -36,8 +50,9 @@ public class Relecs {
 }
 
 interface Api {
-    String BASE_URL = "http://172.22.22.111:5000/";
-
     @GET("sample")
-    Call<PowerSample> getSample(@Query("gpsid") int id);
+    Call<PowerSample> getSample(@Query("gpsid") int id, @Query("fracsec") int fracsec);
+
+    @GET("config")
+    Call<Config> getConfig(@Query("gpsid") int id);
 }

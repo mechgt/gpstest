@@ -88,7 +88,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     protected static final int NAVDRAWER_ITEM_ACCURACY = 10;
 
-    protected static final int NAVDRAWER_ITEM_PHASER = 11;
+    protected static final int NAVDRAWER_ITEM_PHASOR = 11;
 
     protected static final int NAVDRAWER_ITEM_INVALID = -1;
 
@@ -112,7 +112,7 @@ public class NavigationDrawerFragment extends Fragment {
             R.string.delete_aiding_data,
             R.string.navdrawer_item_send_feedback,
             R.string.gps_accuracy_title,
-            R.string.gps_phaser_title
+            R.string.gps_phasor_title
     };
 
     // icons for navdrawer items (indices must correspond to above array)
@@ -128,7 +128,7 @@ public class NavigationDrawerFragment extends Fragment {
             R.drawable.ic_delete, // Clear assist data
             0, // Send feedback
             R.drawable.ic_accuracy, // Accuracy
-            R.drawable.ic_sky, // Phaser
+            R.drawable.ic_sky, // Phasor
     };
 
     // Secondary navdrawer item icons that appear align to right of list item layout
@@ -408,7 +408,7 @@ public class NavigationDrawerFragment extends Fragment {
         mNavDrawerItems.add(NAVDRAWER_ITEM_MAP);
         mNavDrawerItems.add(NAVDRAWER_ITEM_SKY);
         mNavDrawerItems.add(NAVDRAWER_ITEM_ACCURACY);
-        mNavDrawerItems.add(NAVDRAWER_ITEM_PHASER);
+        mNavDrawerItems.add(NAVDRAWER_ITEM_PHASOR);
 
         mNavDrawerItems.add(NAVDRAWER_ITEM_SEPARATOR_SPECIAL);
 

@@ -56,9 +56,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GpsPhaserFragment extends Fragment implements GpsTestListener {
+public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
-    public final static String TAG = "GpsPhaserFragment";
+    public final static String TAG = "GpsPhasorFragment";
 
     @SuppressLint("SimpleDateFormat") // See #117
     SimpleDateFormat mTimeFormat = new SimpleDateFormat(
@@ -71,13 +71,16 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
 
     private Resources mRes;
 
-    private TextView mVoltageView, mVoltageAngView, mCurrentView, mCurrentAngView, mFixTimeView, mFixTimeErrorView;
+    private TextView mVoltsaView, mAmpsaView,
+            mVoltsbView, mAmpsbView, mVoltscView, mAmpscView,
+            mFixTimeView, mFixTimeErrorView, mDeltaTimeView;
 
     private Location mLocation;
 
     private int svCount;
 
     private long mFixTime;
+    private double mFracOfSec;
 
     private PowerSample mPowerSample;
 
@@ -93,13 +96,16 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
 
         mRes = getResources();
 
-        View v = inflater.inflate(R.layout.gps_phaser, container,false);
+        View v = inflater.inflate(R.layout.gps_phasor, container,false);
 
-        mVoltageView = v.findViewById(R.id.voltage);
-        mVoltageAngView = v.findViewById(R.id.volt_ang);
-        mCurrentView = v.findViewById(R.id.current);
-        mCurrentAngView = v.findViewById(R.id.current_ang);
+        mVoltsaView = v.findViewById(R.id.voltsa);
+        mAmpsaView = v.findViewById(R.id.ampsa);
+        mVoltsbView = v.findViewById(R.id.voltsa);
+        mAmpsbView = v.findViewById(R.id.ampsa);
+        mVoltscView = v.findViewById(R.id.voltsa);
+        mAmpscView = v.findViewById(R.id.ampsa);
         mFixTimeView = v.findViewById(R.id.fix_time);
+        mDeltaTimeView = v.findViewById(R.id.delta_time);
         mFixTimeErrorView = v.findViewById(R.id.fix_time_error);
         mFixTimeErrorView.setOnClickListener(view -> showTimeErrorDialog(mFixTime));
 
@@ -114,10 +120,11 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
         if (navigating != mNavigating) {
             if (!navigating) {
                 mViewModel.reset();
-                mVoltageView.setText("0 V");
-                mVoltageAngView.setText("0°");
-                mCurrentView.setText("0 A");
-                mCurrentAngView.setText("0°");
+
+                mVoltsaView.setText("0 V");
+                mAmpsaView.setText("0 A");
+
+                mDeltaTimeView.setText("0ms");
 
                 mFixTime = 0;
                 updateFixTime();
@@ -152,25 +159,57 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
     }
 
     private void readPower() {
-        //Call<List<PowerSample>> call = Relecs.getInstance().getRelecsAPI().getSample(1);
-        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(1);
-
+        long start = System.currentTimeMillis();
+        // System.nanoTime()
+        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(1, 10);
         call.enqueue(new Callback<PowerSample>() {
             @Override
             public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
+                long delta = System.currentTimeMillis() - start;
+
                 mPowerSample = response.body();
                 Phase pA = mPowerSample.data.sample.A;
                 Phase pB = mPowerSample.data.sample.B;
                 Phase pC = mPowerSample.data.sample.C;
-                mVoltageView.setText(String.format("%.2f", pA.volts));
-                mCurrentView.setText(String.format("%.2f", pA.amps));
+
+                String phasor_fmt = "%.2f∠%.2f";
+                mVoltsaView.setText(String.format(phasor_fmt, pA.volts));
+                mAmpsaView.setText(String.format(phasor_fmt, pA.amps));
+                mVoltsbView.setText(String.format(phasor_fmt, pB.volts));
+                mAmpsbView.setText(String.format(phasor_fmt, pB.amps));
+                mVoltscView.setText(String.format(phasor_fmt, pC.volts));
+                mAmpscView.setText(String.format(phasor_fmt, pC.amps));
+
+                // Display request latency time for debugging
+                mDeltaTimeView.setText(String.valueOf(delta) + " ms");
             }
 
             @Override
             public void onFailure(Call<PowerSample> call, Throwable t) {
-                Toast.makeText(getContext(), "An error has occured", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "An error has occurred", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void readConfig() {
+        readConfig(false);
+    }
+
+    private void readConfig(boolean force) {
+        if (force || true) {
+            Call<Config> call = Relecs.getInstance().getRelecsAPI().getConfig(1);
+            call.enqueue(new Callback<Config>() {
+                @Override
+                public void onResponse(Call<Config> call, Response<Config> response) {
+                    Toast.makeText(getContext(), "Config read: " + String.valueOf(response.body().soc), Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onFailure(Call<Config> call, Throwable t) {
+                    Toast.makeText(getContext(), "An error occurred retrieving Config", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     /**
@@ -209,7 +248,7 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
 
     @Override
     public void gpsStart() {
-
+        readConfig();
     }
 
     @Override
@@ -232,8 +271,10 @@ public class GpsPhaserFragment extends Fragment implements GpsTestListener {
         mLocation = location;
 
         mFixTime = location.getTime();
+        mFracOfSec = System.nanoTime(); // TODO: Is this required?  Calibrate nanoseconds to a boundary
 
         updateFixTime();
+        readConfig();
         readPower();
     }
 
