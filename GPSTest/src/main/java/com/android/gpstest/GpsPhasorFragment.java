@@ -100,10 +100,10 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
         mVoltsaView = v.findViewById(R.id.voltsa);
         mAmpsaView = v.findViewById(R.id.ampsa);
-        mVoltsbView = v.findViewById(R.id.voltsa);
-        mAmpsbView = v.findViewById(R.id.ampsa);
-        mVoltscView = v.findViewById(R.id.voltsa);
-        mAmpscView = v.findViewById(R.id.ampsa);
+        mVoltsbView = v.findViewById(R.id.voltsb);
+        mAmpsbView = v.findViewById(R.id.ampsb);
+        mVoltscView = v.findViewById(R.id.voltsc);
+        mAmpscView = v.findViewById(R.id.ampsc);
         mFixTimeView = v.findViewById(R.id.fix_time);
         mDeltaTimeView = v.findViewById(R.id.delta_time);
         mFixTimeErrorView = v.findViewById(R.id.fix_time_error);
@@ -168,20 +168,22 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                 long delta = System.currentTimeMillis() - start;
 
                 mPowerSample = response.body();
-                Phase pA = mPowerSample.data.sample.A;
-                Phase pB = mPowerSample.data.sample.B;
-                Phase pC = mPowerSample.data.sample.C;
+                if (mPowerSample != null) {
+                    Phase pA = mPowerSample.data.sample.A;
+                    Phase pB = mPowerSample.data.sample.B;
+                    Phase pC = mPowerSample.data.sample.C;
 
-                String phasor_fmt = "%.2f∠%.2f";
-                mVoltsaView.setText(String.format(phasor_fmt, pA.volts));
-                mAmpsaView.setText(String.format(phasor_fmt, pA.amps));
-                mVoltsbView.setText(String.format(phasor_fmt, pB.volts));
-                mAmpsbView.setText(String.format(phasor_fmt, pB.amps));
-                mVoltscView.setText(String.format(phasor_fmt, pC.volts));
-                mAmpscView.setText(String.format(phasor_fmt, pC.amps));
+                    String phasor_fmt = "%.2f∠%.2f";
+                    mVoltsaView.setText(String.format(phasor_fmt, pA.volts, pA.volts_ang));
+                    mAmpsaView.setText(String.format(phasor_fmt, pA.amps, pA.amps_ang));
+                    mVoltsbView.setText(String.format(phasor_fmt, pB.volts, pB.volts_ang));
+                    mAmpsbView.setText(String.format(phasor_fmt, pB.amps, pB.amps_ang));
+                    mVoltscView.setText(String.format(phasor_fmt, pC.volts, pC.volts_ang));
+                    mAmpscView.setText(String.format(phasor_fmt, pC.amps, pC.amps_ang));
 
-                // Display request latency time for debugging
-                mDeltaTimeView.setText(String.valueOf(delta) + " ms");
+                    // Display request latency time for debugging
+                    mDeltaTimeView.setText(String.valueOf(delta) + " ms");
+                }
             }
 
             @Override

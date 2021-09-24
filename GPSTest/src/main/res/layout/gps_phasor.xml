@@ -95,7 +95,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/voltage_label" />
+                                android:text="@string/voltsa_label" />
                             <TextView
                                 android:id="@+id/voltsa"
                                 style="@style/info_value" />
@@ -105,7 +105,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/current_label" />
+                                android:text="@string/ampsa_label" />
                             <TextView
                                 android:id="@+id/ampsa"
                                 style="@style/info_value" />
@@ -118,7 +118,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/voltage_label" />
+                                android:text="@string/voltsb_label" />
                             <TextView
                                 android:id="@+id/voltsb"
                                 style="@style/info_value" />
@@ -128,7 +128,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/current_label" />
+                                android:text="@string/ampsb_label" />
                             <TextView
                                 android:id="@+id/ampsb"
                                 style="@style/info_value" />
@@ -141,7 +141,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/voltage_label" />
+                                android:text="@string/voltsc_label" />
                             <TextView
                                 android:id="@+id/voltsc"
                                 style="@style/info_value" />
@@ -151,7 +151,7 @@
                                 style="@style/info_label"
                                 android:layout_gravity="right"
                                 android:layout_marginRight="@dimen/status_label_right_margin"
-                                android:text="@string/current_label" />
+                                android:text="@string/ampsc_label" />
                             <TextView
                                 android:id="@+id/ampsc"
                                 style="@style/info_value" />
