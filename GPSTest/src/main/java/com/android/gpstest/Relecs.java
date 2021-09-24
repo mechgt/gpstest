@@ -27,7 +27,7 @@ public class Relecs {
             host = Application.get().getString(R.string.pref_gps_host_default);
         }
 
-        int port = PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_port), 5000);
+        int port = Integer.valueOf(PreferenceUtils.getString(R.string.pref_key_port));
         BASE_URL = String.format("http://%s:%d", host, port);
 
         Retrofit retrofit = new Retrofit.Builder()

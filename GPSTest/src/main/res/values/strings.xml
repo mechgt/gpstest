@@ -95,14 +95,6 @@
     <string name="pdop_label">PDOP:</string>
     <string name="hvdop_label">H/V DOP:</string>
 
-    <string name="voltsa_label">Volts A:</string>
-    <string name="ampsa_label">Amps A:</string>
-    <string name="voltsb_label">Volts B:</string>
-    <string name="ampsb_label">Amps B:</string>
-    <string name="voltsc_label">Volts C:</string>
-    <string name="ampsc_label">Amps C:</string>
-    <string name="angle_label">Angle:</string>
-
     <string name="gps_prn_column_label">ID</string>
     <string name="gnss_flag_image_label">GNSS</string>
     <string name="sbas_flag_image_label">SBAS</string>
@@ -160,6 +152,18 @@
     <string name="sdcm_content_description">SDCM</string>
     <string name="snas_content_description">SNAS</string>
     <string name="saccsa_content_description">SACCSA</string>
+
+    <!-- Phasor View -->
+    <string name="gps_diff_label">GPS delta:</string>
+    <string name="voltsa_label">Volts A:</string>
+    <string name="ampsa_label">Amps A:</string>
+    <string name="voltsb_label">Volts B:</string>
+    <string name="ampsb_label">Amps B:</string>
+    <string name="voltsc_label">Volts C:</string>
+    <string name="ampsc_label">Amps C:</string>
+    <string name="angle_label">Angle:</string>
+    <string name="freq_label">Freq. (Hz):</string>
+    <string name="time_base_label">Time Base:</string>
 
     <!-- Map view -->
     <string name="ground_truth_latitude">Your latitude</string>
@@ -294,7 +298,7 @@
     <string name="pref_gps_category_title">GNSS</string>
 
     <string name="pref_force_full_gnss_measurements_title">Force full GNSS Measurements</string>
-    <string name="pref_force_full_gnss_measurements_summary">Available on Android 12 and higher. If checked, GNSS chipset switches off duty cycling so that no clock discontinuities are expected, and when supported, carrier phase should be continuous in good signal conditions. If unchecked, GNSS chipset optimizes power via duty cycling, constellations and frequency limits, etc.</string>
+    <string name="pref_force_full_gnss_measurements_summary">Available on Android 12 and higher. If checked, GNSS chipset switches off duty cycling so that no clock discontinuities are expected, and when supported, carrier line should be continuous in good signal conditions. If unchecked, GNSS chipset optimizes power via duty cycling, constellations and frequency limits, etc.</string>
 
     <string name="pref_auto_start_gps_title">Auto-Start GNSS</string>
     <string name="pref_auto_start_gps_summary">Start GNSS when the app starts</string>

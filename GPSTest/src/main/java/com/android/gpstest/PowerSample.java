@@ -1,7 +1,6 @@
 package com.android.gpstest;
 
-import androidx.annotation.RequiresPermission;
-
+import com.android.gpstest.util.PreferenceUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PowerSample {
@@ -32,37 +31,5 @@ class Sample {
 
     Sample() {
     }
-}
-
-class Phase {
-    @JsonProperty("volts")
-    double volts;
-    @JsonProperty("amps")
-    double amps;
-
-    @JsonProperty("volts_ang")
-    double volts_ang;
-    @JsonProperty("amps_ang")
-    double amps_ang;
-
-    Phase() {
-    }
-
-    public double getVolts() {
-        return volts;
-    }
-
-    public void setVolts(double volts) {
-        this.volts = volts;
-    }
-
-    public double getAmps() {
-        return amps;
-    }
-
-    public void setAmps(double amps) {
-        this.amps = amps;
-    }
-
 }
 

@@ -32,6 +32,53 @@
         android:layout_marginTop="@dimen/status_margin"
         android:layout_marginBottom="@dimen/status_margin">
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/phasor_config"
+            android:layout_gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            card_view:cardUseCompatPadding="true"
+            card_view:cardCornerRadius="4dp"
+            android:foreground="?attr/selectableItemBackground">
+
+            <HorizontalScrollView
+                android:id="@+id/phaser_config"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foreground="?attr/selectableItemBackground">
+                <TableLayout
+                    android:id="@+id/config_table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/status_margin"
+                    android:gravity="center_horizontal">
+
+                    <TableRow>
+                        <TextView
+                            android:id="@+id/config_freq_label"
+                            style="@style/info_label"
+                            android:layout_gravity="right"
+                            android:layout_marginRight="@dimen/status_label_right_margin"
+                            android:text="@string/freq_label" />
+                        <TextView
+                            android:id="@+id/freq"
+                            style="@style/info_value" />
+                    </TableRow>
+                    <TableRow>
+                        <TextView
+                            android:id="@+id/time_base_label"
+                            style="@style/info_label"
+                            android:layout_gravity="right"
+                            android:layout_marginRight="@dimen/status_label_right_margin"
+                            android:text="@string/time_base_label" />
+                        <TextView
+                            android:id="@+id/time_base"
+                            style="@style/info_value" />
+                    </TableRow>
+                </TableLayout>
+            </HorizontalScrollView>
+        </androidx.cardview.widget.CardView>
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
@@ -90,6 +137,23 @@
                                 android:visibility="gone" />
                         </TableRow>
                         <TableRow>
+                            <TextView
+                                android:id="@+id/gps_diff_label"
+                                style="@style/info_label"
+                                android:layout_gravity="right"
+                                android:layout_marginRight="@dimen/status_label_right_margin"
+                                android:text="@string/gps_diff_label" />
+                            <TextView
+                                android:id="@+id/gps_diff"
+                                style="@style/info_value" />
+                            <TextView
+                                android:id="@+id/gps_diff_soc"
+                                style="@style/info_value" />
+                            <TextView
+                                android:id="@+id/gps_diff_fracsec"
+                                style="@style/info_value" />
+                        </TableRow>
+                        <TableRow android:paddingTop="14dp">
                             <TextView
                                 android:id="@+id/voltsa_label"
                                 style="@style/info_label"
@@ -170,6 +234,16 @@
             android:layout_height="wrap_content"
             card_view:cardUseCompatPadding="true"
             card_view:cardCornerRadius="4dp"
-            android:foreground="?attr/selectableItemBackground"/>
+            android:foreground="?attr/selectableItemBackground">
+
+            <com.android.gpstest.view.GpsPhaserView
+                android:id="@+id/phaser_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp" />
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

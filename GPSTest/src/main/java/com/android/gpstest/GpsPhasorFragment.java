@@ -47,8 +47,11 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.android.gpstest.model.SatelliteStatus;
 import com.android.gpstest.util.DateTimeUtils;
+import com.android.gpstest.util.PreferenceUtils;
 import com.android.gpstest.util.SatelliteUtils;
 import com.android.gpstest.util.UIUtils;
+
+import com.android.gpstest.view.GpsPhaserView;
 
 import java.text.SimpleDateFormat;
 
@@ -70,17 +73,21 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     ? "HH:mm:ss.SSS MMM d, yyyy z" : "hh:mm:ss.SSS a MMM d, yyyy z");
 
     private Resources mRes;
+    private int mGpsId;
 
     private TextView mVoltsaView, mAmpsaView,
             mVoltsbView, mAmpsbView, mVoltscView, mAmpscView,
-            mFixTimeView, mFixTimeErrorView, mDeltaTimeView;
+            mFixTimeView, mFixTimeErrorView, mDeltaTimeView,
+            mGpsOffsetView, mCfgFreqView, mCfgTimeBaseView;
+
+    private GpsPhaserView mPhaserView;
 
     private Location mLocation;
 
     private int svCount;
 
     private long mFixTime;
-    private double mFracOfSec;
+    private long mFracOfSec;
 
     private PowerSample mPowerSample;
 
@@ -108,6 +115,13 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         mDeltaTimeView = v.findViewById(R.id.delta_time);
         mFixTimeErrorView = v.findViewById(R.id.fix_time_error);
         mFixTimeErrorView.setOnClickListener(view -> showTimeErrorDialog(mFixTime));
+        mCfgFreqView = v.findViewById(R.id.freq);
+        mCfgTimeBaseView = v.findViewById(R.id.time_base);
+
+        mPhaserView = v.findViewById(R.id.phaser_view);
+
+        mGpsOffsetView = v.findViewById(R.id.gps_diff);
+        mGpsId = PreferenceUtils.getInt(R.string.pref_gps_id_default, 0);
 
         GpsTestActivity.getInstance().addListener(this);
 
@@ -161,8 +175,9 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     private void readPower() {
         long start = System.currentTimeMillis();
         // System.nanoTime()
-        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(1, 10);
+        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(mGpsId, 10);
         call.enqueue(new Callback<PowerSample>() {
+            @SuppressLint("DefaultLocale")
             @Override
             public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
                 long delta = System.currentTimeMillis() - start;
@@ -173,7 +188,13 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     Phase pB = mPowerSample.data.sample.B;
                     Phase pC = mPowerSample.data.sample.C;
 
-                    String phasor_fmt = "%.2f∠%.2f";
+                    pA.applyTimestamp(mFixTime/1e3, mFracOfSec);
+                    pB.applyTimestamp(mFixTime/1e3, mFracOfSec);
+                    pC.applyTimestamp(mFixTime/1e3, mFracOfSec);
+
+                    mGpsOffsetView.setText(String.format("%.0f ms, %.1f°", pA.gpsoffset_ns / 1e6, pA.gpsoffset_deg));
+
+                    String phasor_fmt = "%.2f∠%.1f°";
                     mVoltsaView.setText(String.format(phasor_fmt, pA.volts, pA.volts_ang));
                     mAmpsaView.setText(String.format(phasor_fmt, pA.amps, pA.amps_ang));
                     mVoltsbView.setText(String.format(phasor_fmt, pB.volts, pB.volts_ang));
@@ -183,6 +204,8 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
                     // Display request latency time for debugging
                     mDeltaTimeView.setText(String.valueOf(delta) + " ms");
+
+                    mPhaserView.setPhasers(new Phase[]{pA, pB, pC});
                 }
             }
 
@@ -199,11 +222,21 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
     private void readConfig(boolean force) {
         if (force || true) {
-            Call<Config> call = Relecs.getInstance().getRelecsAPI().getConfig(1);
+            Call<Config> call = Relecs.getInstance().getRelecsAPI().getConfig(mGpsId);
             call.enqueue(new Callback<Config>() {
                 @Override
                 public void onResponse(Call<Config> call, Response<Config> response) {
-                    Toast.makeText(getContext(), "Config read: " + String.valueOf(response.body().soc), Toast.LENGTH_LONG).show();
+                    Config config = response.body();
+                    if (config != null) {
+                        Toast.makeText(getContext(), "Config read: " + String.valueOf(config.soc), Toast.LENGTH_LONG).show();
+                        PreferenceUtils.saveInt(Application.get().getString(R.string.pref_key_gps_time_base), config.time_base);
+                        PreferenceUtils.saveInt(Application.get().getString(R.string.pref_key_gps_freqHz), GpsPhasorUtils.fnomToHz(config.fnom));
+
+//                        mCfgTimeBaseView.setText(PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_gps_time_base)), 1000000000);
+//                        mCfgFreqView.setText(PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_gps_freqHz)), 60);
+                        mCfgTimeBaseView.setText(String.valueOf(config.time_base));
+                        mCfgFreqView.setText(String.valueOf(GpsPhasorUtils.fnomToHz(config.fnom)));
+                    }
                 }
 
                 @Override
@@ -273,10 +306,10 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         mLocation = location;
 
         mFixTime = location.getTime();
-        mFracOfSec = System.nanoTime(); // TODO: Is this required?  Calibrate nanoseconds to a boundary
+        mFracOfSec = (long) (System.nanoTime() % 1e9);
 
         updateFixTime();
-        readConfig();
+
         readPower();
     }
 
@@ -314,11 +347,13 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
     @Override
     public void onGnssStarted() {
+        mPhaserView.setStarted();
         setStarted(true);
     }
 
     @Override
     public void onGnssStopped() {
+        mPhaserView.setStopped();
         setStarted(false);
     }
 

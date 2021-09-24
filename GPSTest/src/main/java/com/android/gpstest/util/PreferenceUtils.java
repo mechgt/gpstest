@@ -95,6 +95,10 @@ public class PreferenceUtils {
         return Application.getPrefs().getInt(key, defaultValue);
     }
 
+    public static int getInt(int key, int defaultValue) {
+        return getInt(Application.get().getString(key), defaultValue);
+    }
+
     @TargetApi(9)
     public static void saveLong(SharedPreferences prefs, String key, long value) {
         SharedPreferences.Editor edit = prefs.edit();
@@ -157,6 +161,10 @@ public class PreferenceUtils {
 
     public static String getString(String key) {
         return Application.getPrefs().getString(key, null);
+    }
+
+    public static String getString(int key) {
+        return getString(Application.get().getString(key));
     }
 
     public static long getLong(String key, long defaultValue) {
