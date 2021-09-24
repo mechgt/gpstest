@@ -36,35 +36,21 @@ import com.android.gpstest.util.UIUtils;
 
     public class GpsPhaserView extends View implements GpsTestListener {
 
-//        public static final float MIN_VALUE_CN0 = 10.0f;
-//        public static final float MAX_VALUE_CN0 = 45.0f;
-//        public static final float MIN_VALUE_SNR = 0.0f;
-//        public static final float MAX_VALUE_SNR = 30.0f;
-
         // View dimensions, to draw the compass with the correct width and height
         private static int mHeight;
 
         private static int mWidth;
 
-//        private static final float PRN_TEXT_SCALE = 0.7f;
-
         private static int SAT_RADIUS;
-
-//        private float[] mSnrThresholds;
-//
-//        private int[] mSnrColors;
-//
-//        private float[] mCn0Thresholds;
-//
-//        private int[] mCn0Colors;
 
         Context mContext;
 
         WindowManager mWindowManager;
 
         private Paint mHorizonActiveFillPaint, mHorizonInactiveFillPaint, mHorizonStrokePaint,
-                mGridStrokePaint, mSatelliteFillPaint, mSatelliteStrokePaint, mSatelliteUsedStrokePaint,
-                mNorthPaint, mNorthFillPaint, mPrnIdPaint, mNotInViewPaint;
+                mGridStrokePaint, mNorthPaint, mNorthFillPaint;
+
+        private int textColor, satStrokeColorUsed;
 
         private double mOrientation = 0.0;
 
@@ -72,28 +58,8 @@ import com.android.gpstest.util.UIUtils;
 
         private Phaser[] mPhasers;
         private double mMag;
-
-//        private float[] mSnrCn0s;  // Holds either SNR or C/N0 - see #65
-//        private float[] mElevs;
-//        private float[] mAzims;
-//
-//        private float mSnrCn0UsedAvg = 0.0f;
-//
-//        private float mSnrCn0InViewAvg = 0.0f;
-//
-//        private boolean[] mHasEphemeris;
-//        private boolean[] mHasAlmanac;
-//        private boolean[] mUsedInFix;
-//
-//        private int[] mPrns;
-//        private int[] mConstellationType;
-//
         private int mPhaseCount;
-//
-//        private boolean mUseLegacyGnssApi = false;
-//
-//        private boolean mIsSnrBad = false;
-//
+
         public GpsPhaserView(Context context) {
             super(context);
             init(context);
@@ -109,9 +75,7 @@ import com.android.gpstest.util.UIUtils;
             mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             SAT_RADIUS = UIUtils.dpToPixels(context, 5);
 
-            int textColor;
             int backgroundColor;
-            int satStrokeColorUsed;
             if (Application.getPrefs().getBoolean(mContext.getString(R.string.pref_key_dark_theme), false)) {
                 // Dark theme
                 textColor = getResources().getColor(android.R.color.secondary_text_dark);
@@ -145,35 +109,6 @@ import com.android.gpstest.util.UIUtils;
             mGridStrokePaint.setStyle(Paint.Style.STROKE);
             mGridStrokePaint.setAntiAlias(true);
 
-//            mSatelliteFillPaint = new Paint();
-//            mSatelliteFillPaint.setColor(ContextCompat.getColor(mContext, R.color.yellow));
-//            mSatelliteFillPaint.setStyle(Paint.Style.FILL);
-//            mSatelliteFillPaint.setAntiAlias(true);
-//
-//            mSatelliteStrokePaint = new Paint();
-//            mSatelliteStrokePaint.setColor(Color.BLACK);
-//            mSatelliteStrokePaint.setStyle(Paint.Style.STROKE);
-//            mSatelliteStrokePaint.setStrokeWidth(2.0f);
-//            mSatelliteStrokePaint.setAntiAlias(true);
-//
-//            mSatelliteUsedStrokePaint = new Paint();
-//            mSatelliteUsedStrokePaint.setColor(satStrokeColorUsed);
-//            mSatelliteUsedStrokePaint.setStyle(Paint.Style.STROKE);
-//            mSatelliteUsedStrokePaint.setStrokeWidth(8.0f);
-//            mSatelliteUsedStrokePaint.setAntiAlias(true);
-//
-//            mSnrThresholds = new float[]{MIN_VALUE_SNR, 10.0f, 20.0f, MAX_VALUE_SNR};
-//            mSnrColors = new int[]{ContextCompat.getColor(mContext, R.color.gray),
-//                    ContextCompat.getColor(mContext, R.color.red),
-//                    ContextCompat.getColor(mContext, R.color.yellow),
-//                    ContextCompat.getColor(mContext, R.color.green)};
-//
-//            mCn0Thresholds = new float[]{MIN_VALUE_CN0, 21.67f, 33.3f, MAX_VALUE_CN0};
-//            mCn0Colors = new int[]{ContextCompat.getColor(mContext, R.color.gray),
-//                    ContextCompat.getColor(mContext, R.color.red),
-//                    ContextCompat.getColor(mContext, R.color.yellow),
-//                    ContextCompat.getColor(mContext, R.color.green)};
-
             mNorthPaint = new Paint();
             mNorthPaint.setColor(Color.BLACK);
             mNorthPaint.setStyle(Paint.Style.STROKE);
@@ -185,19 +120,6 @@ import com.android.gpstest.util.UIUtils;
             mNorthFillPaint.setStyle(Paint.Style.FILL);
             mNorthFillPaint.setStrokeWidth(4.0f);
             mNorthFillPaint.setAntiAlias(true);
-
-//            mPrnIdPaint = new Paint();
-//            mPrnIdPaint.setColor(textColor);
-//            mPrnIdPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-//            mPrnIdPaint
-//                    .setTextSize(UIUtils.dpToPixels(getContext(), SAT_RADIUS * PRN_TEXT_SCALE));
-//            mPrnIdPaint.setAntiAlias(true);
-//
-//            mNotInViewPaint = new Paint();
-//            mNotInViewPaint.setColor(ContextCompat.getColor(context, R.color.not_in_view_sat));
-//            mNotInViewPaint.setStyle(Paint.Style.FILL);
-//            mNotInViewPaint.setStrokeWidth(4.0f);
-//            mNotInViewPaint.setAntiAlias(true);
 
             mPhasers = new Phaser[5];
             for (int i = 0; i < 5; i++) {
@@ -226,7 +148,6 @@ import com.android.gpstest.util.UIUtils;
 
         public void setStopped() {
             mStarted = false;
-//            mSvCount = 0;
             invalidate();
         }
 
@@ -245,144 +166,7 @@ import com.android.gpstest.util.UIUtils;
             mStarted = true;
             invalidate();
         }
-//        @RequiresApi(api = Build.VERSION_CODES.N)
-//        public synchronized void setGnssStatus(GnssStatus status) {
-//            mUseLegacyGnssApi = false;
-//            mIsSnrBad = false;
-//            if (mPrns == null) {
-//                /**
-//                 * We need to allocate arrays big enough so we don't overflow them.  Per
-//                 * https://developer.android.com/reference/android/location/GnssStatus.html#getSvid(int)
-//                 * 255 should be enough to contain all known satellites world-wide.
-//                 */
-//                final int MAX_LENGTH = 255;
-//                mPrns = new int[MAX_LENGTH];
-//                mSnrCn0s = new float[MAX_LENGTH];
-//                mElevs = new float[MAX_LENGTH];
-//                mAzims = new float[MAX_LENGTH];
-//                mConstellationType = new int[MAX_LENGTH];
-//                mHasEphemeris = new boolean[MAX_LENGTH];
-//                mHasAlmanac = new boolean[MAX_LENGTH];
-//                mUsedInFix = new boolean[MAX_LENGTH];
-//            }
-//
-//            int length = status.getSatelliteCount();
-//            mSvCount = 0;
-//            int svInViewCount = 0;
-//            int svUsedCount = 0;
-//            float cn0InViewSum = 0.0f;
-//            float cn0UsedSum = 0.0f;
-//            mSnrCn0InViewAvg = 0.0f;
-//            mSnrCn0UsedAvg = 0.0f;
-//            while (mSvCount < length) {
-//                mSnrCn0s[mSvCount] = status.getCn0DbHz(mSvCount);  // Store C/N0 values (see #65)
-//                mElevs[mSvCount] = status.getElevationDegrees(mSvCount);
-//                mAzims[mSvCount] = status.getAzimuthDegrees(mSvCount);
-//                mPrns[mSvCount] = status.getSvid(mSvCount);
-//                mConstellationType[mSvCount] = status.getConstellationType(mSvCount);
-//                mHasEphemeris[mSvCount] = status.hasEphemerisData(mSvCount);
-//                mHasAlmanac[mSvCount] = status.hasAlmanacData(mSvCount);
-//                mUsedInFix[mSvCount] = status.usedInFix(mSvCount);
-//                // If satellite is in view, add signal to calculate avg
-//                if (status.getCn0DbHz(mSvCount) != 0.0f) {
-//                    svInViewCount++;
-//                    cn0InViewSum = cn0InViewSum + status.getCn0DbHz(mSvCount);
-//                }
-//                if (status.usedInFix(mSvCount)) {
-//                    svUsedCount++;
-//                    cn0UsedSum = cn0UsedSum + status.getCn0DbHz(mSvCount);
-//                }
-//                mSvCount++;
-//            }
-//
-//            if (svInViewCount > 0) {
-//                mSnrCn0InViewAvg = cn0InViewSum / svInViewCount;
-//            }
-//            if (svUsedCount > 0) {
-//                mSnrCn0UsedAvg = cn0UsedSum / svUsedCount;
-//            }
-//
-//            mStarted = true;
-//            invalidate();
-//        }
-//
-//        @RequiresApi(api = Build.VERSION_CODES.N)
-//        public void setGnssMeasurementEvent(GnssMeasurementsEvent event) {
-//            // No-op
-//        }
-//
-//        @Deprecated
-//        public void setSats(GpsStatus status) {
-//            mUseLegacyGnssApi = true;
-//            Iterator<GpsSatellite> satellites = status.getSatellites().iterator();
-//
-//            if (mSnrCn0s == null) {
-//                int length = status.getMaxSatellites();
-//                mSnrCn0s = new float[length];
-//                mElevs = new float[length];
-//                mAzims = new float[length];
-//                mPrns = new int[length];
-//                mHasEphemeris = new boolean[length];
-//                mHasAlmanac = new boolean[length];
-//                mUsedInFix = new boolean[length];
-//                // Constellation type isn't used, but instantiate it to avoid NPE in legacy devices
-//                mConstellationType = new int[length];
-//            }
-//
-//            mSvCount = 0;
-//            int svInViewCount = 0;
-//            int svUsedCount = 0;
-//            float snrInViewSum = 0.0f;
-//            float snrUsedSum = 0.0f;
-//            mSnrCn0InViewAvg = 0.0f;
-//            mSnrCn0UsedAvg = 0.0f;
-//            while (satellites.hasNext()) {
-//                GpsSatellite satellite = satellites.next();
-//                mSnrCn0s[mSvCount] = satellite.getSnr(); // Store SNR values (see #65)
-//                mElevs[mSvCount] = satellite.getElevation();
-//                mAzims[mSvCount] = satellite.getAzimuth();
-//                mPrns[mSvCount] = satellite.getPrn();
-//                mHasEphemeris[mSvCount] = satellite.hasEphemeris();
-//                mHasAlmanac[mSvCount] = satellite.hasAlmanac();
-//                mUsedInFix[mSvCount] = satellite.usedInFix();
-//                // If satellite is in view, add signal to calculate avg
-//                if (satellite.getSnr() != 0.0f) {
-//                    svInViewCount++;
-//                    snrInViewSum = snrInViewSum + satellite.getSnr();
-//                }
-//                if (satellite.usedInFix()) {
-//                    svUsedCount++;
-//                    snrUsedSum = snrUsedSum + satellite.getSnr();
-//                }
-//                mSvCount++;
-//            }
-//
-//            if (svInViewCount > 0) {
-//                mSnrCn0InViewAvg = snrInViewSum / svInViewCount;
-//            }
-//            if (svUsedCount > 0) {
-//                mSnrCn0UsedAvg = snrUsedSum / svUsedCount;
-//            }
-//
-//            checkBadSnr();
-//
-//            mStarted = true;
-//            invalidate();
-//        }
-//
-//        /**
-//         * Check if the SNR values are bad (see #153)
-//         */
-//        private void checkBadSnr() {
-//            if (mUseLegacyGnssApi) {
-//                // If either of the avg SNR values are greater than the max SNR value, mark the data as suspect
-//                if ((MathUtils.isValidFloat(mSnrCn0InViewAvg) && mSnrCn0InViewAvg > com.android.gpstest.view.GpsPhaserView.MAX_VALUE_SNR) ||
-//                        (MathUtils.isValidFloat(mSnrCn0UsedAvg) && mSnrCn0UsedAvg > com.android.gpstest.view.GpsPhaserView.MAX_VALUE_SNR)) {
-//                    mIsSnrBad = true;
-//                }
-//            }
-//        }
-//
+
         private void drawLine(Canvas c, float x1, float y1, float x2, float y2) {
             drawLine(c, x1, y1, x2, y2, mGridStrokePaint);
         }
@@ -455,76 +239,6 @@ import com.android.gpstest.util.UIUtils;
             c.drawPath(path, mNorthPaint);
             c.drawPath(path, mNorthFillPaint);
         }
-
-//        private void drawSatellite(Canvas c, int s, float elev, float azim, float snrCn0, int prn,
-//                                   int constellationType, boolean usedInFix) {
-//            double radius, angle;
-//            float x, y;
-//            // Place PRN text slightly below drawn satellite
-//            final double PRN_X_SCALE = 1.4;
-//            final double PRN_Y_SCALE = 3.8;
-//
-//            Paint fillPaint;
-//            if (snrCn0 == 0.0f) {
-//                // Satellite can't be seen
-//                fillPaint = mNotInViewPaint;
-//            } else {
-//                // Calculate fill color based on signal strength
-//                fillPaint = getSatellitePaint(mSatelliteFillPaint, snrCn0);
-//            }
-//
-//            Paint strokePaint;
-//            if (usedInFix) {
-//                strokePaint = mSatelliteUsedStrokePaint;
-//            } else {
-//                strokePaint = mSatelliteStrokePaint;
-//            }
-//
-//            radius = elevationToRadius(s, elev);
-//            azim -= mOrientation;
-//            angle = (float) Math.toRadians(azim);
-//
-//            x = (float) ((s / 2) + (radius * Math.sin(angle)));
-//            y = (float) ((s / 2) - (radius * Math.cos(angle)));
-//
-//            // Change shape based on satellite operator
-//            GnssType operator;
-//            if (SatelliteUtils.isGnssStatusListenerSupported() && !mUseLegacyGnssApi) {
-//                operator = SatelliteUtils.getGnssConstellationType(constellationType);
-//            } else {
-//                operator = SatelliteUtils.getGnssType(prn);
-//            }
-//            switch (operator) {
-//                case NAVSTAR:
-//                    c.drawCircle(x, y, SAT_RADIUS, fillPaint);
-//                    c.drawCircle(x, y, SAT_RADIUS, strokePaint);
-//                    break;
-//                case GLONASS:
-//                    c.drawRect(x - SAT_RADIUS, y - SAT_RADIUS, x + SAT_RADIUS, y + SAT_RADIUS,
-//                            fillPaint);
-//                    c.drawRect(x - SAT_RADIUS, y - SAT_RADIUS, x + SAT_RADIUS, y + SAT_RADIUS,
-//                            strokePaint);
-//                    break;
-//                case QZSS:
-//                    drawHexagon(c, x, y, fillPaint, strokePaint);
-//                    break;
-//                case BEIDOU:
-//                    drawPentagon(c, x, y, fillPaint, strokePaint);
-//                    break;
-//                case GALILEO:
-//                    drawTriangle(c, x, y, fillPaint, strokePaint);
-//                    break;
-//                case IRNSS:
-//                    drawOval(c, x, y, fillPaint, strokePaint);
-//                    break;
-//                case SBAS:
-//                    drawDiamond(c, x, y, fillPaint, strokePaint);
-//                    break;
-//            }
-//
-//            c.drawText(String.valueOf(prn), x - (int) (SAT_RADIUS * PRN_X_SCALE),
-//                    y + (int) (SAT_RADIUS * PRN_Y_SCALE), mPrnIdPaint);
-//        }
 
         private float elevationToRadius(int s, float elev) {
             return ((s / 2) - SAT_RADIUS) * (1.0f - (elev / 90.0f));
@@ -615,75 +329,6 @@ import com.android.gpstest.util.UIUtils;
 
             drawLine(c, radius, radius, radius + px, radius - py, p.paint);
         }
-
-//        private Paint getSatellitePaint(Paint base, float snrCn0) {
-//            Paint newPaint;
-//            newPaint = new Paint(base);
-//            newPaint.setColor(getSatelliteColor(snrCn0));
-//            return newPaint;
-//        }
-//
-//        /**
-//         * Gets the paint color for a satellite based on provided SNR or C/N0 and the thresholds defined in this class
-//         *
-//         * @param snrCn0 the SNR to use (if using legacy GpsStatus) or the C/N0 to use (if using is
-//         *               GnssStatus) to generate the satellite color based on signal quality
-//         * @return the paint color for a satellite based on provided SNR or C/N0
-//         */
-//        public synchronized int getSatelliteColor(float snrCn0) {
-//            int numSteps;
-//            final float[] thresholds;
-//            final int[] colors;
-//
-//            if (!mUseLegacyGnssApi || mIsSnrBad) {
-//                // Use C/N0 ranges/colors for both C/N0 and SNR on Android 7.0 and higher (see #76)
-//                numSteps = mCn0Thresholds.length;
-//                thresholds = mCn0Thresholds;
-//                colors = mCn0Colors;
-//            } else {
-//                // Use legacy SNR ranges/colors for Android versions less than Android 7.0 or if user selects legacy API (see #76)
-//                numSteps = mSnrThresholds.length;
-//                thresholds = mSnrThresholds;
-//                colors = mSnrColors;
-//            }
-//
-//            if (snrCn0 <= thresholds[0]) {
-//                return colors[0];
-//            }
-//
-//            if (snrCn0 >= thresholds[numSteps - 1]) {
-//                return colors[numSteps - 1];
-//            }
-//
-//            for (int i = 0; i < numSteps - 1; i++) {
-//                float threshold = thresholds[i];
-//                float nextThreshold = thresholds[i + 1];
-//                if (snrCn0 >= threshold && snrCn0 <= nextThreshold) {
-//                    int c1, r1, g1, b1, c2, r2, g2, b2, c3, r3, g3, b3;
-//                    float f;
-//
-//                    c1 = colors[i];
-//                    r1 = Color.red(c1);
-//                    g1 = Color.green(c1);
-//                    b1 = Color.blue(c1);
-//
-//                    c2 = colors[i + 1];
-//                    r2 = Color.red(c2);
-//                    g2 = Color.green(c2);
-//                    b2 = Color.blue(c2);
-//
-//                    f = (snrCn0 - threshold) / (nextThreshold - threshold);
-//
-//                    r3 = (int) (r2 * f + r1 * (1.0f - f));
-//                    g3 = (int) (g2 * f + g1 * (1.0f - f));
-//                    b3 = (int) (b2 * f + b1 * (1.0f - f));
-//                    c3 = Color.rgb(r3, g3, b3);
-//
-//                    return c3;
-//                }
-//            }
-//            return Color.MAGENTA;
-//        }
 
         @Override
         protected void onDraw(Canvas canvas) {
