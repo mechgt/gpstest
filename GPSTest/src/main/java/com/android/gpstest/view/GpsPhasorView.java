@@ -167,7 +167,12 @@ import com.android.gpstest.util.UIUtils;
             invalidate();
         }
 
-        private void drawLine(Canvas c, float x1, float y1, float x2, float y2) {
+    public synchronized void setRelay(int status) {
+        mStarted = true;
+        invalidate();
+    }
+
+    private void drawLine(Canvas c, float x1, float y1, float x2, float y2) {
             drawLine(c, x1, y1, x2, y2, mGridStrokePaint);
         }
 

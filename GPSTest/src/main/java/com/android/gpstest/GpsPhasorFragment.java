@@ -242,54 +242,27 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
             @Override
             public void onFailure(Call<PowerSample> call, Throwable t) {
-                Toast.makeText(getContext(), "An error has occurred", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "A power read error has occurred", Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void submitSample(PowerSample sample) {
-        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().submit(mGpsId, sample);
-        call.enqueue(new Callback<PowerSample>() {
+        Call<PRStatus> call = Relecs.getInstance().getRelecsAPI().submit(mGpsId, sample);
+        call.enqueue(new Callback<PRStatus>() {
             @SuppressLint("DefaultLocale")
             @Override
-            public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
-                long delta = System.currentTimeMillis() - start;
+            public void onResponse(Call<PRStatus> call, Response<PRStatus> response) {
+                PRStatus relayStatus = response.body();
+                if (relayStatus != null) {
 
-                mPowerSample = response.body();
-                if (mPowerSample != null) {
-                    Phase pA = mPowerSample.data.sample.A;
-                    Phase pB = mPowerSample.data.sample.B;
-                    Phase pC = mPowerSample.data.sample.C;
-
-                    if (mSpoofSim.isChecked()) {
-                        double spoof = Phase.adjSpoofing(1e7);
-                        mSpoofTime.setText(getTimeString(spoof));
-                    }
-
-                    pA.applyTimestamp(mFixTime/1e3, mFracOfSec);
-                    pB.applyTimestamp(mFixTime/1e3, mFracOfSec);
-                    pC.applyTimestamp(mFixTime/1e3, mFracOfSec);
-
-                    mGpsOffsetView.setText(String.format("%.0f ms, %.1f°", pA.gpsoffset_ns / 1e6, pA.gpsoffset_deg));
-
-                    String phasor_fmt = "%.2f∠%.1f°";
-                    mVoltsaView.setText(String.format(phasor_fmt, pA.volts/1e3, pA.volts_ang));
-                    mAmpsaView.setText(String.format(phasor_fmt, pA.amps, pA.amps_ang));
-                    mVoltsbView.setText(String.format(phasor_fmt, pB.volts/1e3, pB.volts_ang));
-                    mAmpsbView.setText(String.format(phasor_fmt, pB.amps, pB.amps_ang));
-                    mVoltscView.setText(String.format(phasor_fmt, pC.volts/1e3, pC.volts_ang));
-                    mAmpscView.setText(String.format(phasor_fmt, pC.amps, pC.amps_ang));
-
-                    // Display request latency time for debugging
-                    mDeltaTimeView.setText(String.valueOf(delta) + " ms");
-
-                    mPhasorView.setPhasors(new Phase[]{pA, pB, pC});
+                    mPhasorView.setRelay(1);
                 }
             }
 
             @Override
-            public void onFailure(Call<PowerSample> call, Throwable t) {
-                Toast.makeText(getContext(), "An error has occurred", Toast.LENGTH_LONG).show();
+            public void onFailure(Call<PRStatus> call, Throwable t) {
+                Toast.makeText(getContext(), "A submission error occurred.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -318,7 +291,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
                 @Override
                 public void onFailure(Call<Config> call, Throwable t) {
-                    Toast.makeText(getContext(), "An error occurred retrieving Config", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "An error occurred retrieving config", Toast.LENGTH_LONG).show();
                 }
             });
         }
