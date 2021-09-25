@@ -80,6 +80,10 @@ public class PreferenceUtils {
         saveString(Application.getPrefs(), key, value);
     }
 
+    public static void saveString(int key, String value) {
+        saveString(Application.get().getString(key), value);
+    }
+
     @TargetApi(9)
     public static void saveInt(SharedPreferences prefs, String key, int value) {
         SharedPreferences.Editor edit = prefs.edit();
@@ -89,6 +93,10 @@ public class PreferenceUtils {
 
     public static void saveInt(String key, int value) {
         saveInt(Application.getPrefs(), key, value);
+    }
+
+    public static void saveInt(int key, int value) {
+        saveInt(Application.get().getString(key), value);
     }
 
     public static int getInt(String key, int defaultValue) {

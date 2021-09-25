@@ -135,6 +135,7 @@
 
     <string name="pref_key_gps_time_base">preference_timebase</string>
     <string name="pref_key_gps_freqHz">preference_freqhz</string>
+    <string name="pref_key_sim_spoof">preference_simspoof</string>
 
     <!-- Default preference values -->
     <string name="pref_gps_min_time_default_sec">1</string>

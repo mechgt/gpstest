@@ -189,7 +189,7 @@ import com.android.gpstest.util.UIUtils;
             float X2 = cos * x2 + sin * y2 + centerX;
             float Y2 = -(-sin * x2 + cos * y2) + centerY;
 
-            c.drawLine(X1, Y1, X2, Y2, mGridStrokePaint);
+            c.drawLine(X1, Y1, X2, Y2, paint);
         }
 
         private void drawHorizon(Canvas c, int s) {
@@ -446,7 +446,7 @@ class Phaser {
     static int getColor(GpsPhasorUtils.Line line) {
         switch (line) {
             case A:
-                return R.color.red;
+                return Color.RED;
             case B:
                 return Color.BLUE;
             case C:

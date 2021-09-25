@@ -34,7 +34,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +55,9 @@ import com.android.gpstest.util.UIUtils;
 
 import com.android.gpstest.view.GpsPhaserView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -78,7 +82,10 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     private TextView mVoltsaView, mAmpsaView,
             mVoltsbView, mAmpsbView, mVoltscView, mAmpscView,
             mFixTimeView, mFixTimeErrorView, mDeltaTimeView,
-            mGpsOffsetView, mCfgFreqView, mCfgTimeBaseView;
+            mGpsOffsetView, mCfgFreqView, mCfgTimeBaseView,
+            mSpoofTime;
+
+    private Switch mSpoofSim;
 
     private GpsPhaserView mPhaserView;
 
@@ -92,6 +99,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     private PowerSample mPowerSample;
 
     private boolean mNavigating;
+    private final DecimalFormat mCycleFormat = new DecimalFormat("0E0 cycles/sec");
 
     DeviceInfoViewModel mViewModel;
 
@@ -117,11 +125,30 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         mFixTimeErrorView.setOnClickListener(view -> showTimeErrorDialog(mFixTime));
         mCfgFreqView = v.findViewById(R.id.freq);
         mCfgTimeBaseView = v.findViewById(R.id.time_base);
-
+        mSpoofSim = v.findViewById(R.id.gps_spoof_sim);
+        mSpoofSim.setChecked(PreferenceUtils.getInt(R.string.pref_key_sim_spoof, 0) > 0);
+        mSpoofSim.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!isChecked) {
+                    PreferenceUtils.saveInt(R.string.pref_key_sim_spoof, 0);
+                } else {
+                    PreferenceUtils.saveInt(R.string.pref_key_sim_spoof, 1);
+                }
+            }
+        });
+        mSpoofTime = v.findViewById(R.id.spoof_time);
+        mSpoofTime.setText(getTimeString(0));
         mPhaserView = v.findViewById(R.id.phaser_view);
-
         mGpsOffsetView = v.findViewById(R.id.gps_diff);
-        mGpsId = PreferenceUtils.getInt(R.string.pref_gps_id_default, 0);
+        v.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Phase.resetSpoof();
+                mSpoofTime.setText(getTimeString(0));
+            }
+        });
+
+        mGpsId = Integer.parseInt(PreferenceUtils.getString(R.string.pref_key_id));
 
         GpsTestActivity.getInstance().addListener(this);
 
@@ -188,6 +215,11 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     Phase pB = mPowerSample.data.sample.B;
                     Phase pC = mPowerSample.data.sample.C;
 
+                    if (mSpoofSim.isChecked()) {
+                        double spoof = Phase.adjSpoofing(1e7);
+                        mSpoofTime.setText(getTimeString(spoof));
+                    }
+
                     pA.applyTimestamp(mFixTime/1e3, mFracOfSec);
                     pB.applyTimestamp(mFixTime/1e3, mFracOfSec);
                     pC.applyTimestamp(mFixTime/1e3, mFracOfSec);
@@ -195,11 +227,11 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     mGpsOffsetView.setText(String.format("%.0f ms, %.1f°", pA.gpsoffset_ns / 1e6, pA.gpsoffset_deg));
 
                     String phasor_fmt = "%.2f∠%.1f°";
-                    mVoltsaView.setText(String.format(phasor_fmt, pA.volts, pA.volts_ang));
+                    mVoltsaView.setText(String.format(phasor_fmt, pA.volts/1e3, pA.volts_ang));
                     mAmpsaView.setText(String.format(phasor_fmt, pA.amps, pA.amps_ang));
-                    mVoltsbView.setText(String.format(phasor_fmt, pB.volts, pB.volts_ang));
+                    mVoltsbView.setText(String.format(phasor_fmt, pB.volts/1e3, pB.volts_ang));
                     mAmpsbView.setText(String.format(phasor_fmt, pB.amps, pB.amps_ang));
-                    mVoltscView.setText(String.format(phasor_fmt, pC.volts, pC.volts_ang));
+                    mVoltscView.setText(String.format(phasor_fmt, pC.volts/1e3, pC.volts_ang));
                     mAmpscView.setText(String.format(phasor_fmt, pC.amps, pC.amps_ang));
 
                     // Display request latency time for debugging
@@ -224,6 +256,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         if (force || true) {
             Call<Config> call = Relecs.getInstance().getRelecsAPI().getConfig(mGpsId);
             call.enqueue(new Callback<Config>() {
+                @SuppressLint("DefaultLocale")
                 @Override
                 public void onResponse(Call<Config> call, Response<Config> response) {
                     Config config = response.body();
@@ -232,10 +265,8 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                         PreferenceUtils.saveInt(Application.get().getString(R.string.pref_key_gps_time_base), config.time_base);
                         PreferenceUtils.saveInt(Application.get().getString(R.string.pref_key_gps_freqHz), GpsPhasorUtils.fnomToHz(config.fnom));
 
-//                        mCfgTimeBaseView.setText(PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_gps_time_base)), 1000000000);
-//                        mCfgFreqView.setText(PreferenceUtils.getInt(Application.get().getString(R.string.pref_key_gps_freqHz)), 60);
-                        mCfgTimeBaseView.setText(String.valueOf(config.time_base));
-                        mCfgFreqView.setText(String.valueOf(GpsPhasorUtils.fnomToHz(config.fnom)));
+                        mCfgTimeBaseView.setText(mCycleFormat.format(config.time_base));
+                        mCfgFreqView.setText(String.format("%d Hz", GpsPhasorUtils.fnomToHz(config.fnom)));
                     }
                 }
 
@@ -434,5 +465,33 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         if (lock != null) {
             UIUtils.hideViewWithAnimation(lock, UIUtils.ANIMATION_DURATION_SHORT_MS);
         }
+    }
+
+    /**
+     * Gets a string of elapsed time adjusted to the nearest time unit.
+     *
+     * @param ns    Elapsed time to be displayed, in nanoseconds.
+     * @return      A formatted string such as 300 ms, 100 ns, or 1000 sec.
+     */
+    private String getTimeString(double ns) {
+        double scale;
+        String units;
+        if (ns > 1e9) {
+            scale = 1e-9;
+            units = "sec.";
+        } else if (ns > 1e6) {
+            scale = 1e-6;
+            units = "ms";
+        } else if (ns > 1e3) {
+            scale = 1e-3;
+            units = "us";
+        } else if (ns == 0) {
+            return "0 ms";
+        } else {
+            scale = 1;
+            units = "ns";
+        }
+
+        return String.format("%1.0f %s", ns * scale, units);
     }
 }

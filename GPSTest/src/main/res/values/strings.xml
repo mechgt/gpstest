@@ -155,14 +155,14 @@
 
     <!-- Phasor View -->
     <string name="gps_diff_label">GPS delta:</string>
-    <string name="voltsa_label">Volts A:</string>
+    <string name="voltsa_label">Volts A (kV):</string>
     <string name="ampsa_label">Amps A:</string>
-    <string name="voltsb_label">Volts B:</string>
+    <string name="voltsb_label">Volts B (kV):</string>
     <string name="ampsb_label">Amps B:</string>
-    <string name="voltsc_label">Volts C:</string>
+    <string name="voltsc_label">Volts C (kV):</string>
     <string name="ampsc_label">Amps C:</string>
     <string name="angle_label">Angle:</string>
-    <string name="freq_label">Freq. (Hz):</string>
+    <string name="freq_label">Freq.:</string>
     <string name="time_base_label">Time Base:</string>
 
     <!-- Map view -->
@@ -521,4 +521,5 @@
         &#8226;\u0020 Finnish translation provided by Ari Nygard\n
         &#8226;\u0020 Danish translation provided by Claus Østergaard\n
     </string>
+    <string name="reset">Reset</string>
 </resources>
