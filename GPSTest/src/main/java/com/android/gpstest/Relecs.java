@@ -10,7 +10,9 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public class Relecs {
@@ -55,4 +57,7 @@ interface Api {
 
     @GET("config")
     Call<Config> getConfig(@Query("gpsid") int id);
+
+    @POST("submit")
+    Call<PRStatus> submit(@Query("gpsid") int id, @Body PowerSample sample);
 }

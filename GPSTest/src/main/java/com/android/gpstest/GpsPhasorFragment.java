@@ -53,11 +53,10 @@ import com.android.gpstest.util.PreferenceUtils;
 import com.android.gpstest.util.SatelliteUtils;
 import com.android.gpstest.util.UIUtils;
 
-import com.android.gpstest.view.GpsPhaserView;
+import com.android.gpstest.view.GpsPhasorView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,7 +86,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
     private Switch mSpoofSim;
 
-    private GpsPhaserView mPhaserView;
+    private GpsPhasorView mPhasorView;
 
     private Location mLocation;
 
@@ -138,7 +137,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         });
         mSpoofTime = v.findViewById(R.id.spoof_time);
         mSpoofTime.setText(getTimeString(0));
-        mPhaserView = v.findViewById(R.id.phaser_view);
+        mPhasorView = v.findViewById(R.id.phasor_view);
         mGpsOffsetView = v.findViewById(R.id.gps_diff);
         v.findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,7 +236,54 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     // Display request latency time for debugging
                     mDeltaTimeView.setText(String.valueOf(delta) + " ms");
 
-                    mPhaserView.setPhasers(new Phase[]{pA, pB, pC});
+                    mPhasorView.setPhasors(new Phase[]{pA, pB, pC});
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PowerSample> call, Throwable t) {
+                Toast.makeText(getContext(), "An error has occurred", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void submitSample(PowerSample sample) {
+        Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().submit(mGpsId, sample);
+        call.enqueue(new Callback<PowerSample>() {
+            @SuppressLint("DefaultLocale")
+            @Override
+            public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
+                long delta = System.currentTimeMillis() - start;
+
+                mPowerSample = response.body();
+                if (mPowerSample != null) {
+                    Phase pA = mPowerSample.data.sample.A;
+                    Phase pB = mPowerSample.data.sample.B;
+                    Phase pC = mPowerSample.data.sample.C;
+
+                    if (mSpoofSim.isChecked()) {
+                        double spoof = Phase.adjSpoofing(1e7);
+                        mSpoofTime.setText(getTimeString(spoof));
+                    }
+
+                    pA.applyTimestamp(mFixTime/1e3, mFracOfSec);
+                    pB.applyTimestamp(mFixTime/1e3, mFracOfSec);
+                    pC.applyTimestamp(mFixTime/1e3, mFracOfSec);
+
+                    mGpsOffsetView.setText(String.format("%.0f ms, %.1f°", pA.gpsoffset_ns / 1e6, pA.gpsoffset_deg));
+
+                    String phasor_fmt = "%.2f∠%.1f°";
+                    mVoltsaView.setText(String.format(phasor_fmt, pA.volts/1e3, pA.volts_ang));
+                    mAmpsaView.setText(String.format(phasor_fmt, pA.amps, pA.amps_ang));
+                    mVoltsbView.setText(String.format(phasor_fmt, pB.volts/1e3, pB.volts_ang));
+                    mAmpsbView.setText(String.format(phasor_fmt, pB.amps, pB.amps_ang));
+                    mVoltscView.setText(String.format(phasor_fmt, pC.volts/1e3, pC.volts_ang));
+                    mAmpscView.setText(String.format(phasor_fmt, pC.amps, pC.amps_ang));
+
+                    // Display request latency time for debugging
+                    mDeltaTimeView.setText(String.valueOf(delta) + " ms");
+
+                    mPhasorView.setPhasors(new Phase[]{pA, pB, pC});
                 }
             }
 
@@ -342,6 +388,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
         updateFixTime();
 
         readPower();
+        submitSample(mPowerSample);
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -378,13 +425,13 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
 
     @Override
     public void onGnssStarted() {
-        mPhaserView.setStarted();
+        mPhasorView.setStarted();
         setStarted(true);
     }
 
     @Override
     public void onGnssStopped() {
-        mPhaserView.setStopped();
+        mPhasorView.setStopped();
         setStarted(false);
     }
 

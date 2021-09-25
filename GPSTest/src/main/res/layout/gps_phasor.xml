@@ -42,7 +42,7 @@
             android:foreground="?attr/selectableItemBackground">
 
             <HorizontalScrollView
-                android:id="@+id/phaser_config"
+                android:id="@+id/phasor_scroll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:foreground="?attr/selectableItemBackground">
@@ -284,8 +284,8 @@
             card_view:cardCornerRadius="4dp"
             android:foreground="?attr/selectableItemBackground">
 
-            <com.android.gpstest.view.GpsPhaserView
-                android:id="@+id/phaser_view"
+            <com.android.gpstest.view.GpsPhasorView
+                android:id="@+id/phasor_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"

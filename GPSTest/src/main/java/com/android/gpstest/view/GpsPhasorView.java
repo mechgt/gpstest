@@ -34,7 +34,7 @@ import com.android.gpstest.util.UIUtils;
      * View that shows satellite positions on a circle representing the sky
      */
 
-    public class GpsPhaserView extends View implements GpsTestListener {
+    public class GpsPhasorView extends View implements GpsTestListener {
 
         // View dimensions, to draw the compass with the correct width and height
         private static int mHeight;
@@ -56,16 +56,16 @@ import com.android.gpstest.util.UIUtils;
 
         private boolean mStarted;
 
-        private Phaser[] mPhasers;
+        private Phasor[] mPhasors;
         private double mMag;
         private int mPhaseCount;
 
-        public GpsPhaserView(Context context) {
+        public GpsPhasorView(Context context) {
             super(context);
             init(context);
         }
 
-        public GpsPhaserView(Context context, @Nullable AttributeSet attrs) {
+        public GpsPhasorView(Context context, @Nullable AttributeSet attrs) {
             super(context, attrs);
             init(context);
         }
@@ -121,9 +121,9 @@ import com.android.gpstest.util.UIUtils;
             mNorthFillPaint.setStrokeWidth(4.0f);
             mNorthFillPaint.setAntiAlias(true);
 
-            mPhasers = new Phaser[5];
+            mPhasors = new Phasor[5];
             for (int i = 0; i < 5; i++) {
-                mPhasers[i] = new Phaser(0, 0, GpsPhasorUtils.Line.values()[i]);
+                mPhasors[i] = new Phasor(0, 0, GpsPhasorUtils.Line.values()[i]);
             }
 
             setFocusable(true);
@@ -151,16 +151,16 @@ import com.android.gpstest.util.UIUtils;
             invalidate();
         }
 
-        public synchronized void setPhasers(Phase[] phases) {
+        public synchronized void setPhasors(Phase[] phases) {
             mPhaseCount = phases.length;
             mMag = 0;
 
             for (int i = 0; i < phases.length; i++) {
-                mPhasers[i].magnitude = phases[i].getVolts();
-                mPhasers[i].angle = phases[i].getVolts_ang();
+                mPhasors[i].magnitude = phases[i].getVolts();
+                mPhasors[i].angle = phases[i].getVolts_ang();
 
-                // Find largest phaser for display scaling
-                mMag = Math.max(mMag, Math.abs(mPhasers[i].magnitude));
+                // Find largest phasor for display scaling
+                mMag = Math.max(mMag, Math.abs(mPhasors[i].magnitude));
             }
 
             mStarted = true;
@@ -194,11 +194,22 @@ import com.android.gpstest.util.UIUtils;
 
         private void drawHorizon(Canvas c, int s) {
             float radius = s / 2;
+            // sin 30 == cos 60 = 0.5
+            // sin 60 == cos 30 = 0.8660254
+            float x30 = (float) (radius*Math.cos(Math.PI / 6));
+            float y30 = (float) (radius*Math.sin(Math.PI / 6));
+            float x60 = (float) (radius*Math.cos(Math.PI / 3));
+            float y60 = (float) (radius*Math.sin(Math.PI / 3));
 
             c.drawCircle(radius, radius, radius,
                     mStarted ? mHorizonActiveFillPaint : mHorizonInactiveFillPaint);
             drawLine(c, 0, radius, 2 * radius, radius);
             drawLine(c, radius, 0, radius, 2 * radius);
+            drawLine(c, radius - x30, radius + y30, radius + x30, radius - y30);
+            drawLine(c, radius - x60, radius + y60, radius + x60, radius - y60);
+            drawLine(c, radius - x30, radius - y30, radius + x30, radius + y30);
+            drawLine(c, radius - x60, radius - y60, radius + x60, radius + y60);
+
             c.drawCircle(radius, radius, elevationToRadius(s, 60.0f), mGridStrokePaint);
             c.drawCircle(radius, radius, elevationToRadius(s, 30.0f), mGridStrokePaint);
             c.drawCircle(radius, radius, elevationToRadius(s, 0.0f), mGridStrokePaint);
@@ -322,7 +333,7 @@ import com.android.gpstest.util.UIUtils;
             c.drawOval(rect, strokePaint);
         }
 
-        private void drawPhaser(Canvas c, Phaser p, int radius) {
+        private void drawPhasor(Canvas c, Phasor p, int radius) {
             double scale = radius / mMag * p.magnitude;
             float px = (float) (scale * Math.cos(p.radians()));
             float py = (float) (scale * Math.sin(p.radians()));
@@ -340,10 +351,10 @@ import com.android.gpstest.util.UIUtils;
 
             drawNorthIndicator(canvas, minScreenDimen);
 
-            if (mPhasers != null) {
+            if (mPhasors != null) {
                 for (int i = 0; i < mPhaseCount; i++) {
-                    if (mPhasers[i] != null) {
-                        drawPhaser(canvas, mPhasers[i], minScreenDimen/2);
+                    if (mPhasors[i] != null) {
+                        drawPhasor(canvas, mPhasors[i], minScreenDimen/2);
                     }
                 }
             }
@@ -427,12 +438,12 @@ import com.android.gpstest.util.UIUtils;
         }
 }
 
-class Phaser {
+class Phasor {
     double magnitude;
     double angle;
     Paint paint;
 
-    Phaser(double mag, double ang, GpsPhasorUtils.Line line) {
+    Phasor(double mag, double ang, GpsPhasorUtils.Line line) {
         this.angle = ang;
         this.magnitude = mag;
         this.paint = new Paint();
