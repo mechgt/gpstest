@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+cloud {
+  [GPS Satellites] as sat
+  sat -- GPS
+  sat -- GLONASS
+}
+
+package "Grid Svr" {
+  () Phase1 as phase1
+  () Phase2 as phase2
+  () Phase3 as phase3
+  [Electrical Server] -- phase1
+  [Electrical Server] -- phase2
+  [Electrical Server] -- phase3
+  [WebUI] as ui
+  ui -left- [Electrical Server]
+}
+
+folder "Android Phone" {
+  [GPS Test] as gpstest
+  gpstest ---( phase1
+  gpstest --( phase2
+  gpstest -( phase3
+  gpstest -left-> antenna
+  antenna -up-( GPS
+  antenna -up-( GLONASS
+}
+
+folder "HackRF" {
+  [HackRF] <-right-> antenna
+}
+
+@enduml

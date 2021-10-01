@@ -255,8 +255,9 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
             public void onResponse(Call<PRStatus> call, Response<PRStatus> response) {
                 PRStatus relayStatus = response.body();
                 if (relayStatus != null) {
-
-                    mPhasorView.setRelay(1);
+                    for (int zid = 0; zid < relayStatus.zones.size() ; zid++) {
+                        mPhasorView.setRelay(relayStatus.zones.get(zid).status);
+                    }
                 }
             }
 
