@@ -322,7 +322,7 @@
     <string name="pref_gps_id_title">PMU Id</string>
     <string name="pref_gps_id_summary">Unique Id for this PMU.
     </string>
-    <string name="pref_gps_id_dialog_title">Enter the unique Id of this PMU. 1 or greater.</string>
+    <string name="pref_gps_id_dialog_title">Enter the unique Id of this PMU. 0 or greater.</string>
     <string name="pref_gps_id_invalid_entry">Id must be a number</string>
 
     <string name="pref_gps_host_title">Relecs Server</string>

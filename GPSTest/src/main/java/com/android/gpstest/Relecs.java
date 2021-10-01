@@ -29,7 +29,7 @@ public class Relecs {
             host = Application.get().getString(R.string.pref_gps_host_default);
         }
 
-        int port = Integer.valueOf(PreferenceUtils.getString(R.string.pref_key_port));
+        int port = Integer.parseInt(PreferenceUtils.getString(R.string.pref_key_port));
         BASE_URL = String.format("http://%s:%d", host, port);
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -44,6 +44,21 @@ public class Relecs {
             instance = new Relecs();
         }
         return instance;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static synchronized void refreshPrefs() {
+        String host = PreferenceUtils.getString(Application.get().getString(R.string.pref_key_host));
+        if (host == null) {
+            host = Application.get().getString(R.string.pref_gps_host_default);
+        }
+
+        int port = Integer.parseInt(PreferenceUtils.getString(R.string.pref_key_port));
+        String pref_url = String.format("http://%s:%d", host, port);
+
+        if (!instance.BASE_URL.equals(pref_url)) {
+            instance = new Relecs();
+        }
     }
 
     public Api getRelecsAPI() {

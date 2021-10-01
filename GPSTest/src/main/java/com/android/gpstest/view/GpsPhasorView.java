@@ -135,6 +135,10 @@ public class GpsPhasorView extends View implements GpsTestListener {
         mStatusOkPaint.setStyle(Paint.Style.FILL);
         mStatusOkPaint.setAntiAlias(true);
 
+        mStatusWarnPaint = new Paint();
+        mStatusWarnPaint.setColor(Color.YELLOW);
+        mStatusWarnPaint.setStyle(Paint.Style.FILL);
+        mStatusWarnPaint.setAntiAlias(true);
 
         mPhasors = new Phasor[5];
         mStatus = 0;

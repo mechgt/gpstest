@@ -313,6 +313,12 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     @Override
     public void onResume() {
         super.onResume();
+
+        // Update preferences in case they've changed
+        Relecs.refreshPrefs();
+        mGpsId = Integer.parseInt(PreferenceUtils.getString(R.string.pref_key_id));
+        readConfig();
+
         GpsTestActivity gta = GpsTestActivity.getInstance();
         setStarted(gta.mStarted);
     }
