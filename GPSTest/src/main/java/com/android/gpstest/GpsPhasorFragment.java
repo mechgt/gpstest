@@ -199,14 +199,14 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     }
 
     private void readPower() {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         // System.nanoTime()
         Call<PowerSample> call = Relecs.getInstance().getRelecsAPI().getSample(mGpsId, 10);
         call.enqueue(new Callback<PowerSample>() {
             @SuppressLint("DefaultLocale")
             @Override
             public void onResponse(Call<PowerSample> call, Response<PowerSample> response) {
-                long delta = System.currentTimeMillis() - start;
+                long delta = System.nanoTime() - start;
 
                 mPowerSample = response.body();
                 if (mPowerSample != null) {
@@ -223,7 +223,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     pB.applyTimestamp(mFixTime/1e3, mFracOfSec);
                     pC.applyTimestamp(mFixTime/1e3, mFracOfSec);
 
-                    mGpsOffsetView.setText(String.format("%.0f ms, %.1f°", pA.gpsoffset_ns / 1e6, pA.gpsoffset_deg));
+                    mGpsOffsetView.setText(String.format("%s, %.1f°", getTimeString(pA.gpsoffset_ns), pA.gpsoffset_deg));
 
                     String phasor_fmt = "%.2f∠%.1f°";
                     mVoltsaView.setText(String.format(phasor_fmt, pA.volts/1e3, pA.volts_ang));
@@ -234,7 +234,7 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
                     mAmpscView.setText(String.format(phasor_fmt, pC.amps, pC.amps_ang));
 
                     // Display request latency time for debugging
-                    mDeltaTimeView.setText(String.valueOf(delta) + " ms");
+                    mDeltaTimeView.setText(getTimeString(delta));
 
                     mPhasorView.setPhasors(new Phase[]{pA, pB, pC});
                 }
@@ -503,22 +503,25 @@ public class GpsPhasorFragment extends Fragment implements GpsTestListener {
     private String getTimeString(double ns) {
         double scale;
         String units;
-        if (ns > 1e9) {
+        if (Math.abs(ns) > 60e9) {
+            scale = 1e-9 / 60;
+            units = "%1.0f mins.";
+        } else if (Math.abs(ns) > 1e9) {
             scale = 1e-9;
-            units = "sec.";
-        } else if (ns > 1e6) {
+            units = "%1.0f sec.";
+        } else if (Math.abs(ns) > 1e6) {
             scale = 1e-6;
-            units = "ms";
-        } else if (ns > 1e3) {
+            units = "%1.0f ms";
+        } else if (Math.abs(ns) > 1e3) {
             scale = 1e-3;
-            units = "us";
+            units = "%1.0f us";
         } else if (ns == 0) {
             return "0 ms";
         } else {
             scale = 1;
-            units = "ns";
+            units = "%1.0f ns";
         }
 
-        return String.format("%1.0f %s", ns * scale, units);
+        return String.format(units, ns * scale);
     }
 }

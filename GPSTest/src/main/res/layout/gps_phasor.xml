@@ -63,8 +63,7 @@
                         <TextView
                             android:id="@+id/freq"
                             style="@style/info_value" />
-                    </TableRow>
-                    <TableRow>
+
                         <TextView
                             android:id="@+id/time_base_label"
                             style="@style/info_label"
